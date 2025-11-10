@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY_HOST: ${{ secrets.REGISTRY_HOST }}
+      REGISTRY_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }}
       BUILD_NUMBER: ${{ github.run_number }}
       OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE }}
       OPENSHIFT_SKIP_TLS_VERIFY: ${{ secrets.OPENSHIFT_SKIP_TLS_VERIFY }}
@@ -44,11 +45,15 @@ jobs:
             echo "Registry secret REGISTRY_HOST must be provided" >&2
             exit 1
           fi
+          if [ -z "${REGISTRY_NAMESPACE}" ]; then
+            echo "Registry secret REGISTRY_NAMESPACE must be provided" >&2
+            exit 1
+          fi
           if [ -z "${PROJECT_VERSION}" ]; then
             echo "PROJECT_VERSION is not set" >&2
             exit 1
           fi
-          IMAGE_REPOSITORY="${REGISTRY_HOST}/${IMAGE_NAME}"
+          IMAGE_REPOSITORY="${REGISTRY_HOST}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
           IMAGE_TAG="${PROJECT_VERSION}-${BUILD_NUMBER}"
           echo "IMAGE_REPOSITORY=${IMAGE_REPOSITORY}" >> "$GITHUB_ENV"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
@@ -57,6 +62,9 @@ jobs:
       - name: Log in to container registry
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "${REGISTRY_HOST}" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
+
+      - name: Debug image uri
+        run: echo "IMAGE_URI=${IMAGE_URI}"
 
       - name: Build container image
         run: docker build -t "${IMAGE_URI}" .
