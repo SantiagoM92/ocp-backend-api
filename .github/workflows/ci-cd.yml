@@ -113,7 +113,6 @@ jobs:
           fi
           helm upgrade --install "${RELEASE_NAME}" "${CHART_PATH}" \
             --namespace "${OPENSHIFT_NAMESPACE}" \
-            --create-namespace \
             --set image.repository="${IMAGE_REPOSITORY}" \
             --set image.tag="${IMAGE_TAG}" \
             --set config.externalUsersBaseUrl="${EXTERNAL_USERS_BASE_URL}"
