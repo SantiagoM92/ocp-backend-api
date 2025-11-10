@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "backend-api.configMapName" . }}
+  labels:
+    {{- include "backend-api.labels" . | nindent 4 }}
+data:
+  EXTERNAL_USERS_BASE_URL: {{ .Values.config.externalUsersBaseUrl | quote }}
